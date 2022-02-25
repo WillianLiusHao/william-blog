@@ -1,0 +1,19 @@
+{
+  "name": "liuzhihao-blog",
+  "version": "1.0.0",
+  "description": "'志豪的blog'",
+  "main": "index.js",
+  "author": "william",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vuepress dev docs --temp .temp",
+    "docs:build": "vuepress build docs",
+    "deploy": "gh-pages -d docs/.vuepress/dist",
+    "commit": "yarn docs:build && yarn deploy"
+  },
+  "devDependencies": {
+    "gh-pages": "^3.1.0",
+    "vuepress": "^1.7.1",
+    "watchpack": "^2.1.1"
+  }
+}

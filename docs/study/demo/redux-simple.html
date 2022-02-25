@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>原生js实现一个简易的redux</title>
+</head>
+
+<body>
+  <div id="app">
+    <div id="title"></div>
+    <div id="content"></div>
+  </div>
+
+
+  <script>
+    let appState = {
+      title: {
+        text: 'React 小书',
+        color: 'red'
+      },
+      content: {
+        text: 'React 小书 内容',
+        color: 'blue'
+      }
+    }
+
+    function stateChange(state, action) {
+      switch(action.type) {
+        case 'UPDATE_TITLE_TEXT':
+          state.title.text = action.text
+          break
+        case 'UPDATE_TITLE_COLOR':
+          state.title.color = action.color
+          break
+        case 'UPDATE_CONTENT_TEXT':
+          state.content.text = action.text
+          break
+        case 'UPDATE_CONTENT_COLOR':
+          state.content.color = action.color
+          break
+        default:
+          break
+      }
+    }
+
+    function RenderApp(newAppState, oldAppState = {}) {
+      if(newAppState === oldAppState) return // 数据无变化则不更新视图
+      console.log('render app')
+      RenderTitle(newAppState.title, oldAppState.title)
+      RenderContent(newAppState.content, oldAppState.content)
+    }
+
+    function RenderTitle(newTitle, oldTitle) {
+      if(newTitle === oldTitle) return
+      console.log('render title')
+      const dom = document.getElementById('title')
+      dom.innerHTML = newTitle.text
+      dom.style.color = newTitle.color
+    }
+
+    function RenderContent(newContent, oldContent) {
+      if(newContent === oldContent) return
+      console.log('render content')
+      const dom = document.getElementById('content')
+      dom.innerHTML = newContent.text
+      dom.style.color = newContent.color
+    }
+
+
+    function createAppStore(state, stateChange) {
+      const listeners = []
+      const subscribe = (listener) => listeners.push(listener) //观察者模式
+      const getState = () => state
+      const dispatch = (action) => {
+        stateChange(state, action) // 改变state数据
+        listeners.forEach(listener => { listener() })
+      }
+      return { getState, dispatch, subscribe }
+    }
+
+    const store = createAppStore(appState, stateChange)
+    RenderApp(store.getState()) // 首次渲染页面
+    let oldState = store.getState() //获取当前的数据
+    store.subscribe(() => {
+      const newState = JSON.parse(JSON.stringify(store.getState())) //获取新的数据
+      RenderApp(newState, oldState)
+      oldState = newState
+    })
+    store.dispatch({type: 'UPDATE_TITLE_TEXT', text: 'react 小书 标题'})
+    store.dispatch({type: 'UPDATE_TITLE_COLOR', color: 'green'})
+  </script>
+</body>
+
+</html>

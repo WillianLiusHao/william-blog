@@ -1,2 +1,2 @@
 # william-blog
-note my daily
+note my daily life

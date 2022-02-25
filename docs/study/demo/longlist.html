@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>长列表加载优化</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <style>
+    html,body {
+      margin: 0;
+      padding: 0;
+    }
+    .item {
+      height: 98px;
+      border: 1px solid #ccc;
+      text-align: center;
+      line-height: 98px;
+    }
+    .view-wrap {
+      background: #f0f0f0;
+      height: 2800px;
+    }
+  </style>
+</head>
+<body>
+  <div id="demo">
+    <div class="longlist" style="height: 72000px;">
+      <!-- <div class="item" v-for="(item, index) in list">{{item}}</div> -->
+      <div class="view-wrap" :style="{transform:`translateY(${transLateX}px)`}">
+        <div class="item" v-for="(showItem, index) in showList" :key="`item-${index}`">{{showItem}}</div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#demo',
+    data() {
+      return {
+        list: [],
+        transLateX: 0,
+        firstLoadItem: 0, // 容器加载的第一条数据
+        showList: []
+      }
+    },
+    created() {
+      for(let i = 0; i<1000; i++) {
+        this.list.push(i)
+      }
+    },
+    mounted() {
+      this.init()
+      this.onscroll()
+    },
+    methods: {
+      init() {
+        let allList = JSON.parse(JSON.stringify(this.list))
+        this.showList = allList.splice(this.firstLoadItem, 20)
+      },
+      onscroll() {
+        window.addEventListener('scroll', () => {
+          let flag = document.documentElement.scrollTop % 700 > 0 && document.documentElement.scrollTop % 700 < 100
+          if(document.documentElement.scrollTop < 700) {
+            this.transLateX = 0
+            this.firstLoadItem = 0
+          } else if (flag) {
+            let n = Math.floor(document.documentElement.scrollTop / 700)
+            this.transLateX = n*700 -700
+            this.firstLoadItem = Math.floor(this.transLateX / 100)
+          }
+          let allList = JSON.parse(JSON.stringify(this.list))
+          this.showList = allList.splice(this.firstLoadItem, 28) //从第一条加载，每次加载28条
+        })
+      }
+    },
+  })
+</script>
+</html>
